@@ -40,4 +40,14 @@ class ProdukBatch extends Model
     {
         return $this->hasMany(BarangExpired::class, 'id_batch');
     }
+
+    public function stokOpname()
+    {
+        return $this->hasMany(StokOpname::class, 'id_batch');
+    }
+
+    public function returBarang()
+    {
+        return $this->hasMany(ReturBarang::class, 'id_batch');
+    }
 }

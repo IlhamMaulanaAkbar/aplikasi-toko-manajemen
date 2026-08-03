@@ -7,10 +7,13 @@ use App\Http\Controllers\Master\ProdukController;
 use App\Http\Controllers\Master\JenisBarangController;
 use App\Http\Controllers\Master\SatuanBarangController;
 use App\Http\Controllers\Master\ProdukBatchController;
+use App\Http\Controllers\Master\SupplierController;
 use App\Http\Controllers\Transaksi\BarangExpiredController;
 use App\Http\Controllers\Transaksi\BarangKeluarController;
 use App\Http\Controllers\Transaksi\BarangMasukController;
 use App\Http\Controllers\Transaksi\PermintaanBarangController;
+use App\Http\Controllers\Transaksi\ReturBarangController;
+use App\Http\Controllers\Transaksi\StokOpnameController;
 use App\Http\Controllers\Laporan\ProdukController as LaporanProdukController;
 use App\Http\Controllers\Laporan\BarangMasukController as LaporanBarangMasukController;
 use App\Http\Controllers\Laporan\BarangKeluarController as LaporanBarangKeluarController;
@@ -52,6 +55,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/satuan-barang/{satuanBarang}', [SatuanBarangController::class, 'update'])->name('satuan-barang.update');
     Route::delete('/satuan-barang/{satuanBarang}', [SatuanBarangController::class, 'destroy'])->name('satuan-barang.destroy');
 
+    Route::get('/supplier', [SupplierController::class, 'index'])->name('supplier.index');
+    Route::get('/supplier/create', [SupplierController::class, 'create'])->name('supplier.create');
+    Route::post('/supplier', [SupplierController::class, 'store'])->name('supplier.store');
+    Route::get('/supplier/{supplier}', [SupplierController::class, 'edit'])->name('supplier.edit');
+    Route::put('/supplier/{supplier}', [SupplierController::class, 'update'])->name('supplier.update');
+    Route::delete('/supplier/{supplier}', [SupplierController::class, 'destroy'])->name('supplier.destroy');
+
     Route::get('/barang-masuk', [BarangMasukController::class, 'index'])->name('barang-masuk.index');
     Route::get('/barang-masuk/create', [BarangMasukController::class, 'create'])->name('barang-masuk.create');
     Route::post('/barang-masuk', [BarangMasukController::class, 'store'])->name('barang-masuk.store');
@@ -72,6 +82,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/barang-expired/{barangExpired}', [BarangExpiredController::class, 'edit'])->name('barang-expired.edit');
     Route::put('/barang-expired/{barangExpired}', [BarangExpiredController::class, 'update'])->name('barang-expired.update');
     Route::delete('/barang-expired/{barangExpired}', [BarangExpiredController::class, 'destroy'])->name('barang-expired.destroy');
+
+    Route::get('/stok-opname', [StokOpnameController::class, 'index'])->name('stok-opname.index');
+    Route::get('/stok-opname/create', [StokOpnameController::class, 'create'])->name('stok-opname.create');
+    Route::post('/stok-opname', [StokOpnameController::class, 'store'])->name('stok-opname.store');
+    Route::get('/stok-opname/{stokOpname}', [StokOpnameController::class, 'edit'])->name('stok-opname.edit');
+    Route::put('/stok-opname/{stokOpname}', [StokOpnameController::class, 'update'])->name('stok-opname.update');
+    Route::delete('/stok-opname/{stokOpname}', [StokOpnameController::class, 'destroy'])->name('stok-opname.destroy');
+
+    Route::get('/retur-barang', [ReturBarangController::class, 'index'])->name('retur-barang.index');
+    Route::get('/retur-barang/create', [ReturBarangController::class, 'create'])->name('retur-barang.create');
+    Route::post('/retur-barang', [ReturBarangController::class, 'store'])->name('retur-barang.store');
+    Route::get('/retur-barang/{returBarang}', [ReturBarangController::class, 'edit'])->name('retur-barang.edit');
+    Route::put('/retur-barang/{returBarang}', [ReturBarangController::class, 'update'])->name('retur-barang.update');
+    Route::delete('/retur-barang/{returBarang}', [ReturBarangController::class, 'destroy'])->name('retur-barang.destroy');
 
     Route::get('/permintaan-barang', [PermintaanBarangController::class, 'index'])->name('permintaan-barang.index');
     Route::get('/permintaan-barang/create', [PermintaanBarangController::class, 'create'])->name('permintaan-barang.create');

@@ -43,7 +43,7 @@
                                 <td class="fs-2 fw-medium mb-0">{{ $bm->batch->produk->nama_produk }}</td>
                                 <td class="fs-2 fw-medium mb-0">{{ $bm->batch->nomor_batch }}</td>
                                 <td class="fs-2 fw-medium mb-0">{{ $bm->jumlah }}</td>
-                                <td class="fs-2 fw-medium mb-0">{{ $bm->supplier }}</td>
+                                <td class="fs-2 fw-medium mb-0">{{ $bm->supplierData->nama_supplier ?? $bm->supplier ?? '-' }}</td>
                                 <td class="fs-2 fw-medium mb-0">{{ $bm->keterangan }}</td>
                                 <td class="fs-2 fw-medium mb-0">
                                     <a href="{{ route('barang-masuk.edit', $bm) }}" class="btn btn-warning btn-sm">

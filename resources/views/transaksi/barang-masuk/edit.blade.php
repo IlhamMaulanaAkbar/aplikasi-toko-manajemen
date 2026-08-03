@@ -54,8 +54,18 @@
                     {{-- SUPPLIER --}}
                     <div class="col-md-6 mb-3">
                         <label>Supplier</label>
-                        <input type="text" name="supplier" value="{{ $barangMasuk->supplier }}" class="form-control"
-                            required>
+                        <select name="id_supplier" class="form-control @error('id_supplier') is-invalid @enderror" required>
+                            <option value="">-- Pilih Supplier --</option>
+                            @foreach ($supplier as $s)
+                                <option value="{{ $s->id_supplier }}"
+                                    {{ old('id_supplier', $barangMasuk->id_supplier) == $s->id_supplier ? 'selected' : '' }}>
+                                    {{ $s->kode_supplier }} - {{ $s->nama_supplier }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('id_supplier')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
 
                     {{-- KETERANGAN --}}

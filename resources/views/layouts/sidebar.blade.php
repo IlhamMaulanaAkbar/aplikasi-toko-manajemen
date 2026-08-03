@@ -31,7 +31,7 @@
                 <!-- ---------------------------------- -->
                 <!-- Dashboard -->
                 <!-- ---------------------------------- -->
-                @if (auth()->user()->role->name !== 'manager')
+                @if (auth()->user()->role->nama_role !== 'Manajer Toko')
                     <li class="sidebar-item">
                         <a class="sidebar-link justify-content-between has-arrow" href="javascript:void(0)"
                             aria-expanded="false">
@@ -79,6 +79,18 @@
 
                                 </a>
                             </li>
+                            <li class="sidebar-item">
+                                <a class="sidebar-link justify-content-between"
+                                    href="{{ route('supplier.index') }}">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="round-16 d-flex align-items-center justify-content-center">
+                                            <i class="ti ti-circle"></i>
+                                        </div>
+                                        <span class="hide-menu">Supplier</span>
+                                    </div>
+
+                                </a>
+                            </li>
                         </ul>
                     </li>
                     <li>
@@ -121,6 +133,28 @@
                             </div>
                         </a>
                     </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link justify-content-between" href="{{ route('stok-opname.index') }}"
+                            aria-expanded="false">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="d-flex">
+                                    <i class="ti ti-clipboard-list"></i>
+                                </span>
+                                <span class="hide-menu">Stok Opname</span>
+                            </div>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link justify-content-between" href="{{ route('retur-barang.index') }}"
+                            aria-expanded="false">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="d-flex">
+                                    <i class="ti ti-refresh"></i>
+                                </span>
+                                <span class="hide-menu">Retur Barang</span>
+                            </div>
+                        </a>
+                    </li>
                 @endif
                 <li class="sidebar-item">
                     <a class="sidebar-link justify-content-between" href="{{ route('permintaan-barang.index') }}"
@@ -140,6 +174,7 @@
                     <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
                     <span class="hide-menu">Laporan</span>
                 </li>
+                
                 <li class="sidebar-item">
                     <a class="sidebar-link justify-content-between" href="{{ route('laporan.produk.index') }}" aria-expanded="false">
                         <div class="d-flex align-items-center gap-3">
@@ -193,7 +228,7 @@
                 <li>
                     <span class="sidebar-divider lg"></span>
                 </li>
-                @if (auth()->user()->role->name !== 'Super Admin')
+                @if (auth()->user()->role->nama_role === 'Super Admin')
                     <li class="nav-small-cap">
                         <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
                         <span class="hide-menu">Manajemen Akun</span>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BarangMasuk;
 use App\Models\Produk;
 use App\Models\ProdukBatch;
+use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -13,7 +14,7 @@ class BarangMasukController extends Controller
 {
     public function index()
     {
-        $barangMasuk = BarangMasuk::with('batch.produk')
+        $barangMasuk = BarangMasuk::with('batch.produk', 'supplierData')
             ->orderBy('tanggal_masuk', 'desc')
             ->get();
 
@@ -23,22 +24,24 @@ class BarangMasukController extends Controller
     public function create()
     {
         $produk = Produk::with('batch')->get();
+        $supplier = Supplier::orderBy('nama_supplier')->get();
 
-        return view('transaksi.barang-masuk.create', compact('produk'));
+        return view('transaksi.barang-masuk.create', compact('produk', 'supplier'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'id_batch' => 'required|exists:produk_batch,id_batch',
+            'id_supplier' => 'required|exists:supplier,id_supplier',
             'tanggal_masuk' => 'required|date',
             'jumlah' => 'required|numeric|min:1',
-            'supplier' => 'required|string|max:255',
             'keterangan' => 'nullable|string'
         ]);
 
         DB::transaction(function () use ($request) {
 
+            $supplier = Supplier::findOrFail($request->id_supplier);
             $batch = ProdukBatch::lockForUpdate()
                 ->with('produk')
                 ->findOrFail($request->id_batch);
@@ -46,9 +49,10 @@ class BarangMasukController extends Controller
             // Simpan transaksi
             BarangMasuk::create([
                 'id_batch' => $batch->id_batch,
+                'id_supplier' => $supplier->id_supplier,
                 'tanggal_masuk' => $request->tanggal_masuk,
                 'jumlah' => $request->jumlah,
-                'supplier' => $request->supplier,
+                'supplier' => $supplier->nama_supplier,
                 'keterangan' => $request->keterangan,
             ]);
 
@@ -69,10 +73,12 @@ class BarangMasukController extends Controller
     public function edit(BarangMasuk $barangMasuk)
     {
         $produk = Produk::with('batch')->get();
+        $supplier = Supplier::orderBy('nama_supplier')->get();
 
         return view('transaksi.barang-masuk.edit', [
-            'barangMasuk' => $barangMasuk,
-            'produk' => $produk
+            'barangMasuk' => $barangMasuk->load('batch.produk', 'supplierData'),
+            'produk' => $produk,
+            'supplier' => $supplier,
         ]);
     }
 
@@ -80,13 +86,15 @@ class BarangMasukController extends Controller
     {
         $request->validate([
             'id_batch' => 'required|exists:produk_batch,id_batch',
+            'id_supplier' => 'required|exists:supplier,id_supplier',
             'tanggal_masuk' => 'required|date',
             'jumlah' => 'required|numeric|min:1',
-            'supplier' => 'required|string|max:255',
             'keterangan' => 'nullable|string'
         ]);
 
         DB::transaction(function () use ($request, $barangMasuk) {
+
+            $supplier = Supplier::findOrFail($request->id_supplier);
 
             // Lock batch lama
             $batchLama = ProdukBatch::lockForUpdate()
@@ -107,9 +115,10 @@ class BarangMasukController extends Controller
             // Update data transaksi
             $barangMasuk->update([
                 'id_batch' => $request->id_batch,
+                'id_supplier' => $supplier->id_supplier,
                 'tanggal_masuk' => $request->tanggal_masuk,
                 'jumlah' => $request->jumlah,
-                'supplier' => $request->supplier,
+                'supplier' => $supplier->nama_supplier,
                 'keterangan' => $request->keterangan,
             ]);
 

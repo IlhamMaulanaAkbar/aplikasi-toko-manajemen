@@ -3,41 +3,43 @@
 namespace App\Http\Controllers\Transaksi;
 
 use App\Http\Controllers\Controller;
-use App\Models\BarangExpired;
 use App\Models\Produk;
 use App\Models\ProdukBatch;
+use App\Models\ReturBarang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
-class BarangExpiredController extends Controller
+class ReturBarangController extends Controller
 {
     public function index()
     {
-        $barangExpired = BarangExpired::with('batch.produk')->latest()->get();
+        $returBarang = ReturBarang::with('batch.produk')
+            ->orderBy('tanggal_retur', 'desc')
+            ->get();
 
-        return view('transaksi.barang-expired.index', compact('barangExpired'));
+        return view('transaksi.retur-barang.index', compact('returBarang'));
     }
 
     public function create()
     {
         $produk = Produk::with('batch')->get();
 
-        return view('transaksi.barang-expired.create', compact('produk'));
+        return view('transaksi.retur-barang.create', compact('produk'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'id_batch' => 'required|exists:produk_batch,id_batch',
-            'tanggal_dicatat' => 'required|date',
+            'tanggal_retur' => 'required|date',
             'jumlah' => 'required|integer|min:1',
-            'status' => 'required|in:Dimusnahkan,Dikembalikan',
-            'keterangan' => 'nullable|string'
+            'jenis_retur' => 'required|string|max:50',
+            'tujuan_retur' => 'required|string|max:100',
+            'keterangan' => 'nullable|string|max:255',
         ]);
 
         DB::transaction(function () use ($request) {
-
             $batch = ProdukBatch::lockForUpdate()
                 ->with('produk')
                 ->findOrFail($request->id_batch);
@@ -48,51 +50,52 @@ class BarangExpiredController extends Controller
                 ]);
             }
 
+            ReturBarang::create([
+                'id_batch' => $batch->id_batch,
+                'tanggal_retur' => $request->tanggal_retur,
+                'jumlah' => $request->jumlah,
+                'jenis_retur' => $request->jenis_retur,
+                'tujuan_retur' => $request->tujuan_retur,
+                'keterangan' => $request->keterangan,
+            ]);
+
             $batch->decrement('stok_batch', $request->jumlah);
             $batch->produk->update([
                 'stok' => $batch->produk->batch()->sum('stok_batch')
             ]);
-
-            BarangExpired::create([
-                'id_batch' => $request->id_batch,
-                'tanggal_dicatat' => $request->tanggal_dicatat,
-                'jumlah' => $request->jumlah,
-                'status' => $request->status,
-                'keterangan' => $request->keterangan,
-            ]);
         });
 
-        return redirect()->route('barang-expired.index')
-            ->with('success', 'Barang expired berhasil dicatat & stok dikurangi');
+        return redirect()->route('retur-barang.index')
+            ->with('success', 'Retur barang berhasil ditambahkan');
     }
 
-    public function edit(BarangExpired $barangExpired)
+    public function edit(ReturBarang $returBarang)
     {
         $produk = Produk::with('batch')->get();
 
-        return view('transaksi.barang-expired.edit', compact(
-            'barangExpired',
-            'produk'
-        ));
+        return view('transaksi.retur-barang.edit', [
+            'returBarang' => $returBarang->load('batch.produk'),
+            'produk' => $produk,
+        ]);
     }
 
-    public function update(Request $request, BarangExpired $barangExpired)
+    public function update(Request $request, ReturBarang $returBarang)
     {
         $request->validate([
             'id_batch' => 'required|exists:produk_batch,id_batch',
-            'tanggal_dicatat' => 'required|date',
+            'tanggal_retur' => 'required|date',
             'jumlah' => 'required|integer|min:1',
-            'status' => 'required|in:Dimusnahkan,Dikembalikan',
-            'keterangan' => 'nullable|string'
+            'jenis_retur' => 'required|string|max:50',
+            'tujuan_retur' => 'required|string|max:100',
+            'keterangan' => 'nullable|string|max:255',
         ]);
 
-        DB::transaction(function () use ($request, $barangExpired) {
-
+        DB::transaction(function () use ($request, $returBarang) {
             $batchLama = ProdukBatch::lockForUpdate()
                 ->with('produk')
-                ->findOrFail($barangExpired->id_batch);
+                ->findOrFail($returBarang->id_batch);
 
-            $batchLama->increment('stok_batch', $barangExpired->jumlah);
+            $batchLama->increment('stok_batch', $returBarang->jumlah);
 
             $batchBaru = ProdukBatch::lockForUpdate()
                 ->with('produk')
@@ -106,11 +109,12 @@ class BarangExpiredController extends Controller
 
             $batchBaru->decrement('stok_batch', $request->jumlah);
 
-            $barangExpired->update([
-                'id_batch' => $request->id_batch,
-                'tanggal_dicatat' => $request->tanggal_dicatat,
+            $returBarang->update([
+                'id_batch' => $batchBaru->id_batch,
+                'tanggal_retur' => $request->tanggal_retur,
                 'jumlah' => $request->jumlah,
-                'status' => $request->status,
+                'jenis_retur' => $request->jenis_retur,
+                'tujuan_retur' => $request->tujuan_retur,
                 'keterangan' => $request->keterangan,
             ]);
 
@@ -125,29 +129,25 @@ class BarangExpiredController extends Controller
             }
         });
 
-        return redirect()->route('barang-expired.index')
-            ->with('success', 'Data barang expired berhasil diperbarui & stok disesuaikan');
+        return redirect()->route('retur-barang.index')
+            ->with('success', 'Retur barang berhasil diperbarui');
     }
 
-
-    public function destroy(BarangExpired $barangExpired)
+    public function destroy(ReturBarang $returBarang)
     {
-        DB::transaction(function () use ($barangExpired) {
-
+        DB::transaction(function () use ($returBarang) {
             $batch = ProdukBatch::lockForUpdate()
                 ->with('produk')
-                ->findOrFail($barangExpired->id_batch);
+                ->findOrFail($returBarang->id_batch);
 
-            // Kembalikan stok
-            $batch->increment('stok_batch', $barangExpired->jumlah);
+            $batch->increment('stok_batch', $returBarang->jumlah);
             $batch->produk->update([
                 'stok' => $batch->produk->batch()->sum('stok_batch')
             ]);
 
-            $barangExpired->delete();
+            $returBarang->delete();
         });
 
-        return redirect()->route('barang-expired.index')
-            ->with('success', 'Data expired dihapus & stok dikembalikan');
+        return back()->with('success', 'Retur barang berhasil dihapus');
     }
 }

@@ -15639,16 +15639,36 @@ textarea.form-control-lg {
   position: fixed;
   left: 0;
   right: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+.left-sidebar > div {
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 .left-sidebar .sidebartoggler {
   color: var(--bs-dark-text-emphasis);
 }
 .left-sidebar .scroll-sidebar {
-  overflow-y: auto;
+  overflow: hidden;
   padding: 0 24px;
-  height: calc(100vh - 310px);
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+  padding-bottom: 24px;
   border-radius: 7px;
+}
+.left-sidebar .scroll-sidebar .simplebar-wrapper,
+.left-sidebar .scroll-sidebar .simplebar-mask,
+.left-sidebar .scroll-sidebar .simplebar-offset {
+  height: 100%;
+}
+.left-sidebar .scroll-sidebar .simplebar-content-wrapper {
+  height: 100%;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
 }
 .left-sidebar .scroll-sidebar .simplebar-track.simplebar-horizontal {
   visibility: hidden !important;
@@ -15967,7 +15987,7 @@ body {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
   }
   .left-sidebar .scroll-sidebar {
-    height: calc(100vh - 240px);
+    height: auto;
   }
 }
 * {

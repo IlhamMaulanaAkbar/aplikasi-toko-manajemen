@@ -18,8 +18,8 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->foreignId('id_role')
-                ->after('id')
-                ->constrained('roles', 'id_role');
+                ->constrained('roles', 'id_role')
+                ->cascadeOnDelete();
             $table->rememberToken();
             $table->timestamps();
         });
@@ -45,10 +45,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
-        Schema::dropForeign(['id_role']);
-        Schema::dropColumn('id_role');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };

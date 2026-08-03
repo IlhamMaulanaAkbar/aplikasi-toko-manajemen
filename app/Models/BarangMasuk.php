@@ -12,6 +12,7 @@ class BarangMasuk extends Model
 
     protected $fillable = [
         'id_batch',
+        'id_supplier',
         'tanggal_masuk',
         'jumlah',
         'supplier',
@@ -21,5 +22,10 @@ class BarangMasuk extends Model
     public function batch()
     {
         return $this->belongsTo(ProdukBatch::class, 'id_batch');
+    }
+
+    public function supplierData()
+    {
+        return $this->belongsTo(Supplier::class, 'id_supplier');
     }
 }
